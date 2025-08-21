@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Acr</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
-
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
-  </head>
-
-  <body>
-    <%= yield %>
-  </body>
+<head>
+  <title>Acr</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="acr-debug" content="layout-vite-ok" />
+  <%= csrf_meta_tags %>
+  <%= vite_client_tag %>
+  <%= vite_react_refresh_tag %>
+  <%# optional: <%= vite_stylesheet_tag "application" %>
+</head>
+<body>
+<%= yield %>
+<%= vite_javascript_tag "application.jsx" %>
+</body>
 </html>

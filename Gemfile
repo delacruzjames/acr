@@ -66,3 +66,5 @@ end
 
 
 gem "rspec-rails", "~> 7.1"
+
+gem "vite_rails", "~> 3.0"
