@@ -1,0 +1,19 @@
+default:
+  GR1:
+    # Buy-One-Get-One-Free
+    bogof: true
+
+  SR1:
+    # price becomes 4.50 when qty >= 3
+    bulk_price_drop:
+      min_qty: 3
+      new_unit_price: 4.50
+
+  CF1:
+    # price becomes 2/3 of base when qty >= 3
+    # compute discount on the line, then round
+    fraction_drop:
+      min_qty: 3
+      numerator: 2
+      denominator: 3
+      rounding: line_total
