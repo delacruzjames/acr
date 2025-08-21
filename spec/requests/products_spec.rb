@@ -1,11 +1,16 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe "Products", type: :request do
-  describe "GET /index" do
-    it "returns http success" do
-      get "/products/index"
-      expect(response).to have_http_status(:success)
-    end
+  it "returns http success" do
+    get "/products"
+    expect(response).to have_http_status(:success)
   end
 
+  it "returns a list of products" do
+    Product.create!(code: "AA1", name: "X", price: 1)
+    get "/products"
+    json = JSON.parse(response.body)
+    expect(json).to be_an(Array)
+    expect(json.first.keys).to include("id","code","name","price")
+  end
 end
