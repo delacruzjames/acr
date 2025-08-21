@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 
 function App() {
     const [products, setProducts] = useState([]);
+    const [cart, setCart] = useState({ items: [], total: 0 });
     useEffect(() => {
         fetch("/products").then(r => r.json()).then(setProducts);
     }, []);
