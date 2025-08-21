@@ -31,6 +31,8 @@ function App() {
     }, []);
 
     const add = async (code) => setCart(await j("POST", "/cart/add_item", { code }));
+    const clear = async () => setCart(await j("POST", "/cart/clear"));
+
     return (
         <div style={{ maxWidth: 720, margin: "40px auto", fontFamily: "Inter, system-ui" }}>
             <h1>Products</h1>
@@ -42,6 +44,36 @@ function App() {
                     </li>
                 ))}
             </ul>
+
+            <h2 style={{ marginTop: 32 }}>Cart</h2>
+            <table width="100%">
+                <thead>
+                <tr>
+                    <th align="left">Code</th>
+                    <th>Qty</th>
+                    <th align="right">Unit (€)</th>
+                    <th align="right">Line (€)</th>
+                </tr>
+                </thead>
+                <tbody>
+                {cart.items.map((it) => {
+                    const lineTotal = it.line_total ?? (Number(it.quantity) * Number(it.unit_price)); // NEW
+                    return (
+                        <tr key={it.code}>
+                            <td>{it.code}</td>
+                            <td align="center">{it.quantity}</td>
+                            <td align="right">{Number(it.unit_price).toFixed(2)}</td>
+                            <td align="right">{Number(lineTotal).toFixed(2)}</td>
+                        </tr>
+                    );
+                })}
+                </tbody>
+
+            </table>
+            <div style={{display: "flex", justifyContent: "space-between", marginTop: 12}}>
+                <button onClick={clear}>Clear</button>
+                <strong style={{fontSize: 18}}>Total: €{Number(cart.total).toFixed(2)}</strong>
+            </div>
         </div>
     );
 }
