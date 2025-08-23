@@ -1,5 +1,5 @@
 class CartsController < ApplicationController
-  before_action :cart
+  before_action :set_cart
 
   def show
     render json: payload
@@ -17,8 +17,8 @@ class CartsController < ApplicationController
 
   private
 
-  def cart
-    @cart ||= Cart.first_or_create!
+  def set_cart
+    @cart = current_cart
   end
 
   def payload
