@@ -64,6 +64,17 @@ module Pricing
             end
           end
         end
+        
+        # --- _global section ---
+        if (g = raw["_global"]).is_a?(Hash)
+          if (gift = g["buy_any_get_gift"]).is_a?(Hash)
+            rules << Rules::BuyAnyGetGiftRule.new(
+              gift_code: gift.fetch("gift_code"),
+              gift_qty: integer!(gift, "gift_qty", "_global", "buy_any_get_gift"),
+              gift_has_bogof: gift.fetch("gift_has_bogof", true)
+            )
+          end
+        end
         rules
       end
 

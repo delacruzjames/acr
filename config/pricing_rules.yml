@@ -17,3 +17,8 @@ default:
       numerator: 2
       denominator: 3
       rounding: line_total
+
+  _global:
+    buy_any_get_gift:
+      gift_code: GR1
+      gift_qty: 1
