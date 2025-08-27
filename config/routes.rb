@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   root "home#index"
   resources :products, only: [:index]
 
-  resource :cart, controller: "carts", only: [:show] do
+  resource :carts, only: [:show] do
     post :add_item
     post :clear
   end

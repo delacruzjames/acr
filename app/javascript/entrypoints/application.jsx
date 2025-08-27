@@ -18,62 +18,100 @@ async function j(method, url, body) {
     return res.json();
 }
 
+function currency(n) { return Number(n).toFixed(2); }
+
 function App() {
     const [products, setProducts] = useState([]);
     const [cart, setCart] = useState({ items: [], total: 0 });
 
     useEffect(() => {
-        (async () => {
-            const [p, c] = await Promise.all([j("GET", "/products"), j("GET", "/cart")]);
-            setProducts(p);
-            setCart(c);
-        })().catch(console.error);
+        fetch("/products").then(r => r.json()).then(setProducts);
+        j("GET", "/carts").then(setCart);
     }, []);
 
-    const add = async (code) => setCart(await j("POST", "/cart/add_item", { code }));
-    const clear = async () => setCart(await j("POST", "/cart/clear"));
+    const add = async (code) => {
+        const updated = await j("POST", "/carts/add_item", { code });
+        setCart(updated);
+    };
+
+    const clear = async () => {
+        const updated = await j("POST", "/carts/clear");
+        setCart(updated);
+    };
 
     return (
-        <div style={{ maxWidth: 720, margin: "40px auto", fontFamily: "Inter, system-ui" }}>
-            <h1>Products</h1>
-            <ul>
-                {products.map((p) => (
-                    <li key={p.id}>
-                        {p.code} — {p.name} (€{Number(p.price).toFixed(2)}){" "}
-                        <button onClick={() => add(p.code)}>Add</button>
-                    </li>
-                ))}
-            </ul>
+        <div style={{ maxWidth: 820, margin: "40px auto", fontFamily: "Inter, system-ui" }}>
+            <h1>Amenitiz Cash Register</h1>
 
-            <h2 style={{ marginTop: 32 }}>Cart</h2>
-            <table width="100%">
-                <thead>
-                <tr>
-                    <th align="left">Code</th>
-                    <th>Qty</th>
-                    <th align="right">Unit (€)</th>
-                    <th align="right">Line (€)</th>
-                </tr>
-                </thead>
-                <tbody>
-                {cart.items.map((it) => {
-                    const lineTotal = it.line_total ?? (Number(it.quantity) * Number(it.unit_price)); // NEW
-                    return (
-                        <tr key={it.code}>
-                            <td>{it.code}</td>
-                            <td align="center">{it.quantity}</td>
-                            <td align="right">{Number(it.unit_price).toFixed(2)}</td>
-                            <td align="right">{Number(lineTotal).toFixed(2)}</td>
-                        </tr>
-                    );
-                })}
-                </tbody>
+            <section style={{ marginBottom: 24 }}>
+                <h2>Products</h2>
+                <ul>
+                    {products.map(p => (
+                        <li key={p.id} style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                            <code style={{ width: 56 }}>{p.code}</code>
+                            <span style={{ flex: 1 }}>{p.name}</span>
+                            <span>€{currency(p.price)}</span>
+                            <button onClick={() => add(p.code)}>Add</button>
+                        </li>
+                    ))}
+                </ul>
+            </section>
 
-            </table>
-            <div style={{display: "flex", justifyContent: "space-between", marginTop: 12}}>
-                <button onClick={clear}>Clear</button>
-                <strong style={{fontSize: 18}}>Total: €{Number(cart.total).toFixed(2)}</strong>
-            </div>
+            <section>
+                <h2>Cart</h2>
+                <button onClick={clear}>Clear cart</button>
+                <table width="100%" cellPadding="6" style={{ marginTop: 12, borderCollapse: "collapse" }}>
+                    <thead>
+                    <tr>
+                        <th align="left">Code</th>
+                        <th align="left">Name</th>
+                        <th align="right">Qty</th>
+                        <th align="right">Unit</th>
+                        <th align="right">Line</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {cart.items.map(it => {
+                        const unit = Number(it.unit_price);
+                        const effective = Number(it.effective_unit_price ?? unit);
+                        const discounted = !Number.isNaN(effective) && effective !== unit;
+
+                        // Prefer server-computed line_total (handles BOGOF exact 3.11)
+                        const line = Number(
+                            it.line_total ?? (effective * Number(it.quantity))
+                        );
+
+                        return (
+                            <tr key={it.code}>
+                                <td><code>{it.code}</code></td>
+                                <td>{it.name}</td>
+                                <td align="right">{it.quantity}</td>
+                                <td align="right">
+                                    {discounted ? (
+                                        <>
+              <span style={{ textDecoration: "line-through", opacity: 0.6, marginRight: 6 }}>
+                €{Number(unit).toFixed(2)}
+              </span>
+                                            <strong>€{Number(effective).toFixed(2)}</strong>
+                                        </>
+                                    ) : (
+                                        <>€{Number(unit).toFixed(2)}</>
+                                    )}
+                                </td>
+                                <td align="right"><strong>€{Number(line).toFixed(2)}</strong></td>
+                            </tr>
+                        );
+                    })}
+                    </tbody>
+
+                    <tfoot>
+                    <tr>
+                        <td colSpan={4} align="right"><strong>Total</strong></td>
+                        <td align="right"><strong>€{currency(cart.total)}</strong></td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </section>
         </div>
     );
 }
